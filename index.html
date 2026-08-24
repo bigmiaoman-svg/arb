@@ -3,21 +3,196 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>arb.md</title>
-<meta name="description" content="arb.md — 项目占位页">
-<meta http-equiv="refresh" content="0; url=https://jinse.md">
+<title>arb.md · 套利监控台 — 24H 更新</title>
 <style>
-  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-    display: flex; align-items: center; justify-content: center; min-height: 100vh;
-    background: #0d1117; color: #c9d1d9; margin: 0; }
-  .box { text-align: center; padding: 24px; }
-  a { color: #58a6ff; }
+:root{
+  --bg:#070b12; --bg2:#0c1322; --card:#101a2c; --card2:#0d1526;
+  --line:#1c2a42; --line2:#243554;
+  --gold:#f0b90b; --gold2:#e6a700; --cyan:#22d3ee; --green:#10b981; --red:#ef4444;
+  --txt:#e6edf7; --dim:#8b9bb4; --dim2:#5b6b85;
+  --mono:'SF Mono','JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+[data-theme="light"]{
+  --bg:#f4f7fb; --bg2:#eef2f8; --card:#ffffff; --card2:#f1f5fa;
+  --line:#e2e8f0; --line2:#cbd5e1;
+  --gold:#b8860b; --gold2:#a16207; --cyan:#0284c7; --green:#059669; --red:#dc2626;
+  --txt:#0f172a; --dim:#475569; --dim2:#94a3b8;
+}
+[data-theme="light"] body{
+  background-image:radial-gradient(1000px 400px at 80% -10%, rgba(2,132,199,.08), transparent),
+                   radial-gradient(800px 300px at 10% -10%, rgba(184,134,11,.07), transparent);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;
+  background-image:radial-gradient(1000px 400px at 80% -10%, rgba(34,211,238,.08), transparent),
+                   radial-gradient(800px 300px at 10% -10%, rgba(240,185,11,.06), transparent)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 60px}
+
+/* topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line)}
+.brand{font-size:18px;font-weight:800;letter-spacing:.5px}
+.brand .g{color:var(--gold)}
+.brand .sub{font-size:11px;color:var(--dim2);font-weight:400;margin-left:8px}
+.nav a{color:var(--dim);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid transparent;transition:.15s}
+.nav a:hover{color:var(--txt);background:var(--card)}
+.nav a.on{color:var(--gold);border-color:var(--line2);background:var(--card)}
+.theme-btn{margin-left:6px;background:var(--card);border:1px solid var(--line2);color:var(--txt);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:15px;display:inline-flex;align-items:center;justify-content:center;transition:.15s}
+.theme-btn:hover{border-color:var(--gold);transform:scale(1.05)}
+
+/* statusbar */
+.statusbar{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line);margin-bottom:20px;font-size:12px;color:var(--dim)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(16,185,129,.5);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(16,185,129,.5)}70%{box-shadow:0 0 0 8px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}
+.badge-24h{background:rgba(240,185,11,.12);border:1px solid rgba(240,185,11,.35);color:var(--gold);padding:2px 10px;border-radius:99px;font-weight:700;font-size:11px;letter-spacing:.5px}
+[data-theme="light"] .badge-24h{background:rgba(184,134,11,.08);border-color:rgba(184,134,11,.35)}
+.meta b{color:var(--txt);font-family:var(--mono);font-variant-numeric:tabular-nums}
+.exch{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--dim)}
+.exch .s{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+/* overview cards */
+.ov{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.ovc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.ovc .l{font-size:11px;color:var(--dim2);letter-spacing:.5px;margin-bottom:6px}
+.ovc .v{font-size:26px;font-weight:800;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.ovc .v.g{color:var(--gold)} .ovc .v.c{color:var(--cyan)} .ovc .v.gr{color:var(--green)} .ovc .v.r{color:var(--red)}
+.ovc .s{font-size:11px;color:var(--dim2);margin-top:4px}
+
+/* table */
+.tblwrap{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tblhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.tblhead h2{font-size:15px}
+.filters{display:flex;gap:8px}
+.fbtn{background:var(--card2);border:1px solid var(--line);color:var(--dim);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;transition:.15s}
+.fbtn.on{color:var(--gold);border-color:rgba(240,185,11,.4)}
+[data-theme="light"] .fbtn.on{color:var(--gold);border-color:rgba(184,134,11,.4)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;color:var(--dim2);font-weight:600;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer;transition:background .12s}
+tbody tr:hover{background:var(--card2)}
+tr.exp td{background:var(--card2);font-size:12px;color:var(--dim);padding:10px 14px 10px 40px;cursor:default}
+tr.exp td b{color:var(--txt)}
+.tag{display:inline-block;padding:1px 8px;border-radius:5px;font-size:11px;font-family:var(--mono);border:1px solid var(--line2)}
+.tag.ok{color:var(--green);border-color:rgba(16,185,129,.4)}
+.tag.no{color:var(--red);border-color:rgba(239,68,68,.4)}
+.tag.warn{color:var(--gold);border-color:rgba(240,185,11,.4)}
+.rate{font-weight:700}
+.pos{color:var(--green)} .neg{color:var(--red)}
+.exname{font-size:11px;color:var(--dim2);background:var(--card2);padding:1px 6px;border-radius:4px;margin-right:4px}
+
+footer{margin-top:28px;display:flex;justify-content:space-between;font-size:11px;color:var(--dim2)}
+@media(max-width:760px){.ov{grid-template-columns:repeat(2,1fr)}.wrap{padding:0 12px 40px}}
 </style>
 </head>
 <body>
-  <div class="box">
-    <p>arb.md — 占位中</p>
-    <p><a href="https://jinse.md">前往 jinse.md →</a></p>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">arb<span class="g">.md</span><span class="sub">套利监控台 · funding 价差</span></div>
+    <div class="nav">
+      <a href="https://jinse.md/">jinse.md</a>
+      <a href="#" class="on">arb.md</a>
+      <a href="https://pump.md/">pump.md</a>
+      <a href="https://hunt.md/">hunt.md</a>
+      <button class="theme-btn" id="themeBtn" title="切换深浅色">🌙</button>
+    </div>
   </div>
+
+  <div class="statusbar">
+    <span class="dot"></span>
+    <span><b id="scanTime">--</b> 扫描</span>
+    <span class="badge-24h">24H 更新一次</span>
+    <span class="exch"><span class="s"></span>binance</span>
+    <span class="exch"><span class="s"></span>gate</span>
+    <span class="exch"><span class="s"></span>bybit</span>
+    <span class="exch"><span class="s"></span>okx</span>
+  </div>
+
+  <div class="ov">
+    <div class="ovc"><div class="l">候选对</div><div class="v c" id="nCand">--</div><div class="s">四所价差 > 阈值</div></div>
+    <div class="ovc"><div class="l">可交易</div><div class="v gr" id="nOk">--</div><div class="s">净收益 > 0</div></div>
+    <div class="ovc"><div class="l">最大净收益</div><div class="v g" id="maxNet">--</div><div class="s">bps / 单期</div></div>
+    <div class="ovc"><div class="l">病态/风险对</div><div class="v r" id="nRisk">--</div><div class="s">逼空 / 流动性不足</div></div>
+  </div>
+
+  <div class="tblwrap">
+    <div class="tblhead">
+      <h2>四所 funding 价差扫描</h2>
+      <div class="filters">
+        <button class="fbtn" data-f="all">全部</button>
+        <button class="fbtn" data-f="ok">仅可交易</button>
+        <button class="fbtn" data-f="risk">仅风险对</button>
+      </div>
+    </div>
+    <table>
+      <thead><tr>
+        <th>币种</th><th>空腿</th><th>多腿</th><th>价差</th><th>OI</th><th>24h 量</th><th>风险</th><th>净收益</th><th>判定</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <footer><span>arb.md · © 2026 张诚顺 · 数据：四所公开 funding</span><span>本地原型 v0.2</span></footer>
+</div>
+
+<script>
+/* ===== 数据（build 注入） ===== */
+const ARB = {"opportunities": [{"coin": "ARM", "short_ex": "binance", "short_rate": 0.112, "long_ex": "gate", "long_rate": 0.01, "spread_rate": 0.102, "pathological": false, "oi": 1361175.2, "vol24h": 331964.6232, "book_spread_pct": 0.1898373726507697, "risk": "·流动性一般 ⚠盘口薄 ⚠量低", "size_usd": 100000, "cost_ok": true, "fee_bps": 20.0, "slip_short_bps": 31.2, "slip_long_bps": 17.5, "total_cost_bps": 117.4, "net_bps": -107.2, "tradeable": false, "cost_reason": null}, {"coin": "TER", "short_ex": "bybit", "short_rate": 0.216, "long_ex": "gate", "long_rate": 0.01, "spread_rate": 0.206, "pathological": false, "oi": 949507.85, "vol24h": 815171.6349, "book_spread_pct": 0.23093418375763783, "risk": "⚠流动性不足 ⚠盘口薄 ⚠量低", "size_usd": 100000, "cost_ok": true, "fee_bps": 21.0, "slip_short_bps": 191.7, "slip_long_bps": 23.4, "total_cost_bps": 451.3, "net_bps": -430.7, "tradeable": false, "cost_reason": null}, {"coin": "KSTR", "short_ex": "bybit", "short_rate": 0.245, "long_ex": "gate", "long_rate": 0.01, "spread_rate": 0.235, "pathological": false, "oi": 401027.09, "vol24h": 327335.744, "book_spread_pct": 0.12978585334197526, "risk": "⚠流动性不足 ⚠量低", "size_usd": 100000, "cost_ok": true, "fee_bps": 21.0, "slip_short_bps": 159.3, "slip_long_bps": 85.1, "total_cost_bps": 509.8, "net_bps": -486.2, "tradeable": false, "cost_reason": null}, {"coin": "VRT", "short_ex": "bybit", "short_rate": 0.111, "long_ex": "gate", "long_rate": 0.01, "spread_rate": 0.101, "pathological": false, "oi": 127992.94, "vol24h": 365513.4176, "book_spread_pct": 0.1324916218533364, "risk": "⚠流动性不足 ⚠量低", "size_usd": 100000, "cost_ok": true, "fee_bps": 21.0, "slip_short_bps": 213.7, "slip_long_bps": 25.5, "total_cost_bps": 499.5, "net_bps": -489.4, "tradeable": false, "cost_reason": null}, {"coin": "MRNA", "short_ex": "okx", "short_rate": 0.087, "long_ex": "bybit", "long_rate": 0.0, "spread_rate": 0.087, "pathological": false, "oi": 644834.19, "vol24h": 1133648.6199, "book_spread_pct": 0.09178522257916155, "risk": "⚠流动性不足", "size_usd": 100000, "cost_ok": true, "fee_bps": 21.0, "slip_short_bps": 44.5, "slip_long_bps": 202.4, "total_cost_bps": 514.8, "net_bps": -506.1, "tradeable": false, "cost_reason": null}, {"coin": "TXN", "short_ex": "binance", "short_rate": 0.096, "long_ex": "bybit", "long_rate": 0.0, "spread_rate": 0.096, "pathological": false, "oi": 204868.54, "vol24h": 13504.7076, "book_spread_pct": 0.33795460655170917, "risk": "⚠流动性不足 ⚠盘口薄 ⚠量低", "size_usd": 100000, "cost_ok": true, "fee_bps": 21.0, "slip_short_bps": 77.9, "slip_long_bps": 226.0, "total_cost_bps": 629.0, "net_bps": -619.3, "tradeable": false, "cost_reason": null}, {"coin": "PAYP", "short_ex": "binance", "short_rate": 0.133, "long_ex": "gate", "long_rate": 0.01, "spread_rate": 0.123, "pathological": false, "oi": 90395.11200000001, "vol24h": 14594.0, "book_spread_pct": 0.19423761735190118, "risk": "⚠流动性不足 ⚠盘口薄 ⚠量低", "size_usd": 100000, "cost_ok": true, "fee_bps": 20.0, "slip_short_bps": 175.4, "slip_long_bps": 268.7, "total_cost_bps": 908.2, "net_bps": -896.0, "tradeable": false, "cost_reason": null}, {"coin": "CAT", "short_ex": "binance", "short_rate": 0.171, "long_ex": "bybit", "long_rate": 0.005, "spread_rate": 0.166, "pathological": false, "oi": 413988.59, "vol24h": 74613.249, "book_spread_pct": 0.10395010395010647, "risk": "⚠流动性不足 ⚠量低", "size_usd": 100000, "cost_ok": false, "fee_bps": 21.0, "slip_short_bps": null, "slip_long_bps": null, "total_cost_bps": null, "net_bps": null, "tradeable": false, "cost_reason": "深度不足（目标仓位吃不满盘口）"}, {"coin": "BSP", "short_ex": "bybit", "short_rate": 0.219, "long_ex": "okx", "long_rate": 0.06, "spread_rate": 0.159, "pathological": false, "oi": 304916.82, "vol24h": 747022.2563, "book_spread_pct": 0.2174700978615351, "risk": "⚠流动性不足 ⚠盘口薄 ⚠量低", "size_usd": 100000, "cost_ok": false, "fee_bps": 21.0, "slip_short_bps": null, "slip_long_bps": null, "total_cost_bps": null, "net_bps": null, "tradeable": false, "cost_reason": "深度不足（目标仓位吃不满盘口）"}, {"coin": "CLO", "short_ex": "gate", "short_rate": 0.155, "long_ex": "bybit", "long_rate": 0.005, "spread_rate": 0.15, "pathological": false, "oi": 1047002.37, "vol24h": 998642.2051, "book_spread_pct": 0.08298755186721653, "risk": "·流动性一般 ⚠量低", "size_usd": 100000, "cost_ok": false, "fee_bps": 21.0, "slip_short_bps": null, "slip_long_bps": null, "total_cost_bps": null, "net_bps": null, "tradeable": false, "cost_reason": "深度不足（目标仓位吃不满盘口）"}], "pathological_watch": [{"coin": "BNC", "short_ex": "binance", "short_rate": 0.084, "long_ex": "bybit", "long_rate": -0.269, "spread_rate": 0.352, "risk": "⚠病态逼空 ⚠流动性不足 ⚠量低"}, {"coin": "STORJ", "short_ex": "binance", "short_rate": -0.17, "long_ex": "bybit", "long_rate": -0.5, "spread_rate": 0.331, "risk": "⚠病态逼空 ·流动性一般"}, {"coin": "SHAZ", "short_ex": "gate", "short_rate": 0.01, "long_ex": "bybit", "long_rate": -0.241, "spread_rate": 0.251, "risk": "⚠病态逼空 ⚠流动性不足 ⚠盘口薄 ⚠量低"}, {"coin": "COTI", "short_ex": "bybit", "short_rate": -0.037, "long_ex": "gate", "long_rate": -0.248, "spread_rate": 0.211, "risk": "⚠病态逼空 ·流动性一般"}, {"coin": "ON", "short_ex": "binance", "short_rate": 0.005, "long_ex": "bybit", "long_rate": -0.194, "spread_rate": 0.199, "risk": "⚠病态逼空 ⚠流动性不足 ⚠盘口薄 ⚠量低"}, {"coin": "RVN", "short_ex": "gate", "short_rate": 0.01, "long_ex": "okx", "long_rate": -0.186, "spread_rate": 0.196, "risk": "⚠病态逼空 ⚠流动性不足 ⚠量低"}, {"coin": "SAND", "short_ex": "okx", "short_rate": -0.14, "long_ex": "bybit", "long_rate": -0.302, "spread_rate": 0.162, "risk": "⚠病态逼空 ·流动性一般"}, {"coin": "BICO", "short_ex": "okx", "short_rate": -0.117, "long_ex": "bybit", "long_rate": -0.274, "spread_rate": 0.158, "risk": "⚠病态逼空 ·流动性一般"}, {"coin": "UNITREE", "short_ex": "binance", "short_rate": -0.083, "long_ex": "okx", "long_rate": -0.222, "spread_rate": 0.138, "risk": "⚠病态逼空 ·流动性一般"}, {"coin": "JST", "short_ex": "gate", "short_rate": -0.026, "long_ex": "bybit", "long_rate": -0.129, "spread_rate": 0.102, "risk": "⚠病态逼空 ·流动性一般"}, {"coin": "CXMT", "short_ex": "gate", "short_rate": -0.006, "long_ex": "okx", "long_rate": -0.105, "spread_rate": 0.098, "risk": "⚠病态逼空 ·流动性一般"}, {"coin": "EDEN", "short_ex": "binance", "short_rate": -0.083, "long_ex": "gate", "long_rate": -0.171, "spread_rate": 0.088, "risk": "⚠病态逼空 ·流动性一般 ⚠量低"}, {"coin": "GRVT", "short_ex": "gate", "short_rate": -0.1, "long_ex": "bybit", "long_rate": -0.184, "spread_rate": 0.085, "risk": "⚠病态逼空 ·流动性一般"}], "positions": [], "accounts": {"okx": {"available_usdt": 174.79401985161203, "equity_usdt": 222.778029183262, "frozen_usdt": 47.984009331649965, "positions": [], "open_orders": []}, "gate": {"available_usdt": 0.009182741078, "equity_usdt": 0.009182741078, "frozen_usdt": 0.0, "positions": [], "open_orders": []}}, "scanned_at": "2026-08-24 11:05 UTC", "source": "funding_arb_scan.py 四所扫描"};
+
+/* ===== 主题切换 ===== */
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=t==='light'?'☀️':'🌙';try{localStorage.setItem('rd-theme',t)}catch(e){}}
+(function(){let s='dark';try{s=localStorage.getItem('rd-theme')||'dark'}catch(e){}if(s!=='light')s='dark';applyTheme(s)})();
+document.getElementById('themeBtn').onclick=()=>applyTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');
+
+/* ===== 渲染 ===== */
+const EX_FULL={binance:'BN',gate:'GT',bybit:'BY',okx:'OK'};
+function fmtUsd(v){if(v==null)return '--';if(v>=1e6)return (v/1e6).toFixed(2)+'M';if(v>=1e3)return (v/1e3).toFixed(1)+'K';return v.toFixed(0)}
+function fmtRate(r){return r==null?'--':(r*100).toFixed(3)+'%'}
+function esc(s){return String(s).replace(/</g,'&lt;')}
+
+function render(filter){
+  const rows=document.getElementById('rows');
+  const list=(ARB.opportunities||[]).filter(o=>{
+    if(filter==='ok')return o.tradeable;
+    if(filter==='risk')return o.risk&&o.risk.length>1;
+    return true;
+  });
+  rows.innerHTML=list.map(o=>{
+    const net=o.net_bps==null?null:o.net_bps;
+    const cls=o.tradeable?'ok':(o.risk&&o.risk.length>1?'warn':'no');
+    const riskHtml=(o.risk||'—').split(' ').map(w=>w?`<span class="tag ${w.includes('流动性')||w.includes('盘口')||w.includes('量低')?'warn':'no'}">${esc(w)}</span>`:'').join(' ');
+    return `<tr data-i="${list.indexOf(o)}">
+      <td><b>${esc(o.coin)}</b></td>
+      <td><span class="exname">${EX_FULL[o.short_ex]||o.short_ex}</span><span class="rate ${o.short_rate>0?'pos':'neg'}">${fmtRate(o.short_rate)}</span></td>
+      <td><span class="exname">${EX_FULL[o.long_ex]||o.long_ex}</span><span class="rate ${o.long_rate>0?'pos':'neg'}">${fmtRate(o.long_rate)}</span></td>
+      <td><b class="rate ${o.spread_rate>=0?'pos':'neg'}">${(o.spread_rate*100).toFixed(3)}%</b></td>
+      <td>${fmtUsd(o.oi)}</td>
+      <td>${fmtUsd(o.vol24h)}</td>
+      <td style="font-family:inherit">${riskHtml}</td>
+      <td class="${net>0?'pos':'neg'}">${net==null?'--':net.toFixed(1)+' bps'}</td>
+      <td><span class="tag ${cls}">${o.tradeable?'✓ 可交易':'✗ 不可套'}</span></td>
+    </tr>
+    <tr class="exp" data-exp="${list.indexOf(o)}" style="display:none">
+      <td colspan="9">仓位 $${o.size_usd||100000} ｜ 手续费 <b>${o.fee_bps??'--'} bps</b> ｜ 空腿滑点 <b>${o.slip_short_bps??'--'} bps</b> ｜ 多腿滑点 <b>${o.slip_long_bps??'--'} bps</b> ｜ 总成本 <b>${o.total_cost_bps??'--'} bps</b> ｜ 净收益 <b class="${net>0?'pos':'neg'}">${net==null?'--':net.toFixed(1)} bps</b>${o.cost_reason?' ｜ '+esc(o.cost_reason):''}</td>
+    </tr>`;
+  }).join('');
+  // 展开逻辑
+  rows.querySelectorAll('tr[data-i]').forEach(tr=>{
+    tr.onclick=()=>{const e=rows.querySelector(`tr.exp[data-exp="${tr.dataset.i}"]`);if(e)e.style.display=e.style.display==='none'?'':'none'};
+  });
+  // 计数
+  const ops=ARB.opportunities||[];
+  document.getElementById('nCand').textContent=ops.length;
+  document.getElementById('nOk').textContent=ops.filter(o=>o.tradeable).length;
+  const nets=ops.map(o=>o.net_bps).filter(v=>v!=null);
+  document.getElementById('maxNet').textContent=nets.length?Math.max(...nets).toFixed(1)+' bps':'--';
+  document.getElementById('nRisk').textContent=ops.filter(o=>o.risk&&o.risk.length>1).length;
+  document.getElementById('scanTime').textContent=(ARB.scanned_at||new Date().toISOString().slice(11,16))+' UTC';
+}
+render('all');
+document.querySelectorAll('.fbtn').forEach(b=>{
+  b.onclick=()=>{document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');render(b.dataset.f)};
+});
+</script>
 </body>
 </html>
