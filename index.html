@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>arb.md · 套利监控台 — 24H 更新</title>
+<title>arb.md · 套利监控台 — 每日 03:00 刷新</title>
 <style>
 :root{
   --bg:#070b12; --bg2:#0c1322; --card:#101a2c; --card2:#0d1526;
@@ -150,7 +150,7 @@ footer{margin-top:28px;display:flex;justify-content:space-between;font-size:11px
   <div class="statusbar">
     <span class="dot"></span>
     <span><b id="scanTime">--</b> 扫描</span>
-    <span class="badge-24h">24H 更新一次</span>
+    <span class="badge-24h">每 24h 03:00 刷新</span>
     <span class="exch"><span class="s"></span>binance</span>
     <span class="exch"><span class="s"></span>gate</span>
     <span class="exch"><span class="s"></span>bybit</span>
@@ -189,7 +189,7 @@ footer{margin-top:28px;display:flex;justify-content:space-between;font-size:11px
     <span>基准 <b id="sBench">--</b></span>
     <span class="badge-24h">确定性规则 · 实盘资金</span>
     <span class="exch"><span class="s"></span>okx 公开数据</span>
-    <span style="color:var(--dim2)">生成 <b id="sGen">--</b></span>
+    <span style="color:var(--dim2)">生成 <b id="sGen">--</b> · <b style="color:var(--cyan)" id="sFreq">每天 08:30/20:30</b></span>
   </div>
 
   <div class="ov">
@@ -260,14 +260,14 @@ footer{margin-top:28px;display:flex;justify-content:space-between;font-size:11px
   </details>
   </div>
 
-  <footer><span>arb.md · 数据：四所公开 funding + OKX 公开行情 + NearBlocks 链上</span><span>24H 更新</span></footer>
+  <footer><span>arb.md · 数据：四所公开 funding（每日 03:00）+ OKX 公开行情（30s 实时）+ NearBlocks 链上（每日 09:45）</span><span>实时盯盘</span></footer>
 
   <!-- ============ 视图3：NEAR 链上 ============ -->
   <div id="view-near" style="display:none">
   <div class="statusbar">
     <span class="dot"></span>
     <span>NEAR <b id="nPrice">--</b></span>
-    <span class="badge-24h">24H 更新一次</span>
+    <span class="badge-24h">每日 09:45 刷新</span>
     <span class="exch"><span class="s"></span>nearblocks</span>
     <span style="color:var(--dim2)">数据更新 <b id="nUpdated">--</b></span>
   </div>
@@ -390,7 +390,7 @@ function renderArb(filter){
   const nets=ops.map(o=>o.net_bps).filter(v=>v!=null);
   document.getElementById('maxNet').textContent=nets.length?Math.max(...nets).toFixed(1)+' bps':'--';
   document.getElementById('nRisk').textContent=ops.filter(o=>o.risk&&o.risk.length>1).length;
-  document.getElementById('scanTime').textContent=(ARB.scanned_at||new Date().toISOString().slice(11,16))+' UTC';
+  document.getElementById('scanTime').textContent=(ARB.scanned_at||new Date().toISOString().slice(11,16)).replace(/ UTC$/,'')+' UTC';
 }
 renderArb('all');
 document.querySelectorAll('.fbtn').forEach(b=>{
